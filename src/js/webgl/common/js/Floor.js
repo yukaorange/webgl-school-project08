@@ -1,7 +1,7 @@
 'use strict';
 
 // Visualize a floor on the screen
-class Floor {
+export class Floor {
 
   constructor(dimension = 50, lines = 5) {
     this.alias = 'floor';

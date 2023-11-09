@@ -6,6 +6,7 @@ import { utils } from './utils.js'
 export class Program {
   constructor(gl, vertexShader, fragmentShader) {
     this.gl = gl
+    
     this.program = gl.createProgram()
 
     if (!(vertexShader && fragmentShader)) {

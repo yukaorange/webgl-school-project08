@@ -47,6 +47,9 @@ export class PostProcess {
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.renderbuffer)
 
+    
+
+
     // Clean up
     gl.bindTexture(gl.TEXTURE_2D, null)
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)

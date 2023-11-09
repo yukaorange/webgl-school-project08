@@ -8,7 +8,6 @@ export class Scene {
   constructor(gl, program) {
     this.gl = gl;
     this.program = program;
-
     this.objects = [];
   }
 
@@ -18,7 +17,7 @@ export class Scene {
   }
 
   // Asynchronously load a file
-  load(filename, alias, attributes) {
+  async load(filename, alias, attributes) {
     return fetch(filename)
     .then(res => res.json())
     .then(object => {
@@ -31,10 +30,12 @@ export class Scene {
 
   // Helper function for returning as list of items for a given model
   loadByParts(path, count, alias) {
+    const promises = [];
     for (let i = 1; i <= count; i++) {
       const part = `${path}${i}.json`;
-      this.load(part, alias);
+      promises.push(this.load(part, alias));
     }
+    return Promise.all(promises);
   }
 
   // Add object to scene, by settings default and configuring all necessary
@@ -48,15 +49,17 @@ export class Scene {
     // That being said, it's best to stick to one convention throughout your application.
     
     object.diffuse = object.diffuse || [1, 1, 1, 1];
-    object.Kd = object.Kd || object.diffuse.slice(0, 3);
+    object.Kd = object.Kd || object.diffuse.slice(0, 3);//kd is diffuse
 
-    object.ambient = object.ambient || [0.2, 0.2, 0.2, 1];
-    object.Ka = object.Ka || object.ambient.slice(0, 3);
+    object.ambient = object.ambient || [1, 1, 1, 1
+    ];
+    object.Ka = object.Ka || object.ambient.slice(0, 3);//ka is ambient
 
     object.specular = object.specular || [1, 1, 1, 1];
-    object.Ks = object.Ks || object.specular.slice(0, 3);
+    object.Ks = object.Ks || object.specular.slice(0, 3);//ks is specular
+
     object.specularExponent = object.specularExponent || 0;
-    object.Ns = object.Ns || object.specularExponent;
+    object.Ns = object.Ns || object.specularExponent;//ns is specularExponent
 
     object.d = object.d || 1;
     object.transparency = object.transparency || object.d;
@@ -76,15 +79,17 @@ export class Scene {
 
     // Enable it to start working on it
     gl.bindVertexArray(object.vao);
-
+    
     // Positions
     if (program.aVertexPosition >= 0) {
-      const vertexBufferObject = gl.createBuffer();// create a VBO
-      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject);// VAO is binded to ARRAY_BUFFER
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.vertices), gl.STATIC_DRAW);// Add vertices to VAO
-      gl.enableVertexAttribArray(program.aVertexPosition);// Enable the attribute
-      gl.vertexAttribPointer(program.aVertexPosition, 3, gl.FLOAT, false, 0, 0);// instruct how to read the data from VAO to aVertexPosition
+      const vertexBufferObject = gl.createBuffer() // create a VBO
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferObject) // VAO is binded to ARRAY_BUFFER. So VBO is recorded in VAO.
+      //now we can use vertexBufferObject to store data. Coz in this step we binded vertexBufferObject.
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(object.vertices), gl.STATIC_DRAW)
+      gl.enableVertexAttribArray(program.aVertexPosition) // Enable the attribute
+      gl.vertexAttribPointer(program.aVertexPosition, 3, gl.FLOAT, false, 0, 0) // instruct how to read the data from VAO to aVertexPosition
     }
+    
 
     // Normals
     if (program.aVertexNormal >= 0) {

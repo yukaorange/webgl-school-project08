@@ -3,15 +3,13 @@ import { vec3,vec4,mat4 } from 'gl-matrix'
 
 // Abstraction over constructing and interacting with a 3D scene using a camera
 export class Camera {
-  constructor(type = Camera.ORBITING_TYPE) {
+  constructor(type = Camera.ORBITING_TYPE,fov = 45) {
     this.position = vec3.create()
     this.focus = vec3.create()
     this.home = vec3.create()
-
     this.up = vec3.create()
     this.right = vec3.create()
     this.normal = vec3.create()
-
     this.matrix = mat4.create()
 
     // You could have these options be passed in via the constructor
@@ -19,7 +17,7 @@ export class Camera {
     this.steps = 0
     this.azimuth = 0
     this.elevation = 0
-    this.fov = 45
+    this.fov = fov
     this.minZ = 0.1
     this.maxZ = 10000
 

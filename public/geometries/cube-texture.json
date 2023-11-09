@@ -1,6 +1,5 @@
 {
   "diffuse": [1, 1, 1, 1],
-  "image": "/textures/square.jpg",
   "vertices": [
     -0.5,
     0.5,
