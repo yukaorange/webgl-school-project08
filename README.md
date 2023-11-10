@@ -9,7 +9,7 @@ inspired https://github.com/tanababy/webgl-studies-vol2
  By the way postprocessing restricted within the cursor area.
 
 
-##starting with
+## starting with
 ```
 npm i 
 npm run dev
