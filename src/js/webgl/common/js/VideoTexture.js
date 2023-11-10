@@ -15,6 +15,7 @@ export class VideoTexture {
     video.autoplay = true
     video.muted = true
     video.loop = true
+    video.playsinline = true
 
     video.addEventListener(
       'playing',
