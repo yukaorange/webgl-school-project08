@@ -1,9 +1,11 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import WebGL from '@/components/WebGL.astro'
+import Loading from '@/components/Loading.astro'
 ---
 
 <Layout title="takaoka_webdesigner">
+  <Loading />
   <WebGL />
 </Layout>
 
@@ -12,3 +14,18 @@ import WebGL from '@/components/WebGL.astro'
     min-height: 100svh;
   }
 </style>
+
+<script>
+  import { init } from '@/js/webgl/main'
+  import { Loading } from '@/js/utils/Loading'
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const loading = new Loading(
+      document.querySelectorAll('#loading'),
+      document.querySelector('#log'),
+      document.querySelector('#progress'),
+      document.querySelector('#counter'),
+      () => init(),
+    )
+  })
+</script>

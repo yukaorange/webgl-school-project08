@@ -1,7 +1,15 @@
 # created in astro / using raw webgl api
 
-starting with
+inspired https://github.com/tanababy/webgl-studies-vol2
 
+ And I'm learning about raw webgl APIs.
+
+ this project shows refraction mapping , post processing , movie-texture. 
+
+ By the way postprocessing restricted within the cursor area.
+
+
+##starting with
 ```
 npm i 
 npm run dev
