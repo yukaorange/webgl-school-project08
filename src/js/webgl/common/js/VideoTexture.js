@@ -17,6 +17,21 @@ export class VideoTexture {
     video.loop = true
     video.playsinline = true
 
+    const playVideo = () => {
+      video
+        .play()
+        .then(() => {
+          // ビデオの再生に成功した場合の処理
+          window.removeEventListener('touchstart', playVideo)
+        })
+        .catch((e) => {
+          // エラー処理
+          console.error('Video play failed', e)
+        })
+    }
+
+    window.addEventListener('touchstart', playVideo)
+
     video.addEventListener(
       'playing',
       () => {
