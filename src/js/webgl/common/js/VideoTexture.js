@@ -15,7 +15,7 @@ export class VideoTexture {
     video.autoplay = true
     video.muted = true
     video.loop = true
-    video.playsinline = true
+    video.playsInline = true
 
     const playVideo = () => {
       video
