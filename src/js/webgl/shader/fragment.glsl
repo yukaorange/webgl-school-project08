@@ -65,9 +65,11 @@ void main(void) {
   float IorG = 1.f / 1.18f;
   float IorB = 1.f / 1.22f;
 
-  vec3 refractVecR = refract(E, N, IorR) *0.3;
-  vec3 refractVecG = refract(E, N, IorG)*0.3;
-  vec3 refractVecB = refract(E, N, IorB)*0.3;
+  float intensity = 0.6;
+
+  vec3 refractVecR = refract(E, N, IorR) * intensity;
+  vec3 refractVecG = refract(E, N, IorG) * intensity;
+  vec3 refractVecB = refract(E, N, IorB) * intensity;
 
   float r = texture(uSamplerVideo, screenUV + refractVecR.xy).r;
   float g = texture(uSamplerVideo, screenUV + refractVecG.xy).g;

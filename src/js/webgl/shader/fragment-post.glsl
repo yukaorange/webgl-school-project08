@@ -29,8 +29,10 @@ void main(void) {
   vec4 originalColor = texture(uSampler, vTextureCoords);
 
   vec2 wavyCoord;
-  wavyCoord.s = vTextureCoords.s + sin(uTime + vTextureCoords.t * 10.f) * 0.015f;
-  wavyCoord.t = vTextureCoords.t + cos(uTime + vTextureCoords.s * 10.f) * 0.015f;
+  float freq = 10.f;
+  float amp = 0.05f;
+  wavyCoord.s = vTextureCoords.s + sin(uTime + vTextureCoords.t * freq) * amp;
+  wavyCoord.t = vTextureCoords.t + cos(uTime + vTextureCoords.s * freq) * amp;
 
   vec4 wavyColor = texture(uSampler, wavyCoord);
 
