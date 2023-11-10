@@ -10,7 +10,10 @@ import { Texture } from './common/js/Texture.js'
 import { Transforms } from './common/js/Transforms.js'
 import { VideoTexture } from './common/js/VideoTexture.js'
 import { utils } from './common/js/utils.js'
+import { PostProcess } from './common/js/PostProcess.js'
+import fragmentPost from './shader/fragment-post.glsl'
 import fragmentShader from './shader/fragment.glsl'
+import vertexPost from './shader/vertex-post.glsl'
 import vertexShader from './shader/vertex.glsl'
 
 let gl,
@@ -25,13 +28,16 @@ let gl,
   isBG,
   elapsedTime,
   aspect,
-  videoTexture
+  videoTexture,
+  cameraPos,
+  post
 
 let fov = 45
 let fovRad = fov * (Math.PI / 180)
 let theta = fovRad / 2
 let planeHeight = 1
 let distance = planeHeight / 2 / Math.tan(theta)
+cameraPos = [0, 0, distance]
 
 let cubeSize = [0.24, 0.24, 0.24]
 
@@ -68,6 +74,7 @@ function configure() {
     'uAspect',
     'uIsBG',
     'uResolution',
+    'uCameraPosition',
   ]
 
   program.load(attributes, uniforms)
@@ -76,7 +83,7 @@ function configure() {
   scene = new Scene(gl, program)
 
   camera = new Camera(Camera.ORBITING_TYPE, fovRad)
-  camera.goHome([0, 0, distance])
+  camera.goHome(cameraPos)
   camera.setFocus([0, 0, 0])
   camera.setElevation(0)
   camera.setAzimuth(0)
@@ -89,10 +96,12 @@ function configure() {
 
   transforms = new Transforms(gl, program, camera, canvas)
 
-  gl.uniform3fv(program.uLightPosition, [0, 0, 1])
-  gl.uniform4fv(program.uLightAmbient, [0.8, 0.8, 0.8, 1])
-  gl.uniform4fv(program.uLightDiffuse, [0.8, 0.8, 0.8, 1])
+  gl.uniform3fv(program.uLightPosition, [10, 10, 10])
+  gl.uniform4fv(program.uLightAmbient, [0.5, 0.5, 0.5, 1])
+  gl.uniform4fv(program.uLightDiffuse, [0.5, 0.5, 0.5, 1])
   gl.uniform1f(program.uAlpha, 1)
+
+  post = new PostProcess(gl, canvas, vertexPost, fragmentPost)
 }
 
 async function load() {
@@ -110,19 +119,29 @@ async function load() {
 
 async function loadTextures() {
   await texture0.setImage('textures/metal.webp')
-  await videoTexture.setupVideo('movie/heart.mp4')
+  await videoTexture.setupVideo('movie/syber3.mp4')
 }
 
 function render() {
   videoTexture.updateTexture()
 
+  post.validateSize()
+  gl.bindFramebuffer(gl.FRAMEBUFFER, post.framebuffer)
+
   draw()
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+
+  post.bind()
+
+  post.draw()
 }
 
 function draw() {
   elapsedTime = clock.getElapsedTime() / 1000
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
   transforms.updatePerspective()
 
   try {
@@ -133,7 +152,6 @@ function draw() {
       transforms.push()
 
       if (object.alias === 'plane') {
-        // mat4.rotateY(transforms.modelViewMatrix, transforms.modelViewMatrix, (object.rotate[1] = elapsedTime / 10))
         mat4.translate(transforms.modelViewMatrix, transforms.modelViewMatrix, object.position)
         mat4.scale(transforms.modelViewMatrix, transforms.modelViewMatrix, object.scale)
         isBG = true
@@ -147,8 +165,6 @@ function draw() {
         mat4.rotateY(transforms.modelViewMatrix, transforms.modelViewMatrix, elapsedTime / 2)
         mat4.rotateX(transforms.modelViewMatrix, transforms.modelViewMatrix, object.rotate[0])
       }
-      // if (object.alias === 'plane') {
-      // }
 
       transforms.setMatrixUniforms()
       transforms.pop()
@@ -156,6 +172,7 @@ function draw() {
       gl.uniform4fv(program.uMaterialDiffuse, object.diffuse)
       gl.uniform4fv(program.uMaterialAmbient, object.ambient)
       gl.uniform4fv(program.uMaterialSpecular, object.specular)
+      gl.uniform3fv(program.uCameraPosition, camera.position)
       gl.uniform2fv(program.uResolution, [
         window.innerWidth * window.devicePixelRatio,
         window.innerHeight * window.devicePixelRatio,

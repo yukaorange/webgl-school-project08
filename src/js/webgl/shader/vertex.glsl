@@ -5,6 +5,7 @@ uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
 uniform mat4 uNormalMatrix;
 uniform vec3 uLightPosition;
+uniform vec3 uCameraPosition;
 uniform vec4 uMaterialDiffuse;
 uniform vec4 uMaterialAmbient;
 uniform vec4 uMaterialSpecular;
@@ -26,7 +27,6 @@ void main(void) {
   vec4 vertex = uModelViewMatrix * vec4(aVertexPosition, 1.0f);
 
   vec4 light = vec4(uLightPosition, 1.0f);
-  // light = uModelViewMatrix * light;
 
   vFinalColor = uMaterialDiffuse;
 
@@ -36,7 +36,7 @@ void main(void) {
 
   vLightRay = vertex.xyz - light.xyz;
 
-  vEyeVector = -vec3(vertex.xyz);
+  vEyeVector = vertex.xyz;
 
   if(uIsBG) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0f);

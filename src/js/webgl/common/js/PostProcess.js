@@ -1,5 +1,6 @@
 'use strict'
-import {utils} from './utils.js'
+import { Mouse } from './Mouse.js'
+import { utils } from './utils.js'
 // Simple implementation for post-processing effects
 export class PostProcess {
   constructor(gl, canvas, vertexShaderId, fragmentShaderId) {
@@ -13,7 +14,8 @@ export class PostProcess {
     this.uniforms = null
     this.attributes = null
     this.gl = gl
-
+    this.mouse = new Mouse()
+    this.mouse.init()
     this.startTime = Date.now()
     this.canvas = canvas
 
@@ -29,11 +31,14 @@ export class PostProcess {
 
     // Init Color Texture
     this.texture = gl.createTexture()
+
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
 
     // Init Renderbuffer
@@ -46,9 +51,6 @@ export class PostProcess {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.renderbuffer)
-
-    
-
 
     // Clean up
     gl.bindTexture(gl.TEXTURE_2D, null)
@@ -65,7 +67,6 @@ export class PostProcess {
     const indices = [0, 1, 2, 2, 1, 3]
 
     const gl = this.gl
-
 
     // Init the buffers
     this.vertexBuffer = gl.createBuffer()
@@ -90,8 +91,8 @@ export class PostProcess {
 
     const gl = this.gl
 
-    const vertexShader = utils.getShader(gl, vertexShaderId,"vertex")
-    const fragmentShader = utils.getShader(gl, fragmentShaderId,"fragment")
+    const vertexShader = utils.getShader(gl, vertexShaderId, 'vertex')
+    const fragmentShader = utils.getShader(gl, fragmentShaderId, 'fragment')
 
     // Cleans up previously created shader objects if we call configureShader again
     if (this.program) {
@@ -168,6 +169,17 @@ export class PostProcess {
     // If the post process shader uses time as an input, pass it in here
     if (this.uniforms.uTime) {
       gl.uniform1f(this.uniforms.uTime, (Date.now() - this.startTime) / 1000)
+    }
+
+    if (this.uniforms.uMouse) {
+      this.mouse.update()
+      
+      gl.uniform2fv(this.uniforms.uMouse, [this.mouse.current.x, this.mouse.current.y])
+    }
+
+    if (this.uniforms.uResolution) {
+      let { width, height } = this.canvas
+      gl.uniform2fv(this.uniforms.uResolution, [width, height])
     }
 
     // The inverse texture size can be useful for effects which require precise pixel lookup

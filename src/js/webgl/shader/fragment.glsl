@@ -25,6 +25,13 @@ float specular(vec3 eye, vec3 normal) {
   return pow(1.0f + dot(eye, normal), 2.0f);
 }
 
+float fresnel(vec3 eyeVector, vec3 worldNormal, float power) {
+  float fresnelFactor = abs(dot(eyeVector, worldNormal));
+  float inversefresnelFactor = 1.0f - fresnelFactor;
+
+  return pow(inversefresnelFactor, power);
+}
+
 void main(void) {
       // Ambient
   vec4 Ia = uLightAmbient * uMaterialAmbient;
@@ -33,10 +40,14 @@ void main(void) {
   vec3 L = normalize(vLightRay);
   vec3 N = normalize(vNormal);
   vec3 E = normalize(vEyeVector);
+  vec3 R = reflect(L, N);
   float lambertTerm = max(dot(N, -L), 0.33f);
+  float specularLay = pow(dot(R, -E), 2.0f);
+  vec4 Is = vec4(0.5f) * specularLay;
+
   vec4 Id = uLightDiffuse * uMaterialDiffuse * lambertTerm;
 
-  vec4 finalColor = Ia + Id;
+  vec4 finalColor = Ia + Id + Is;
 
   vec2 uv = vTextureCoords;
   uv = uv - vec2(0.5f);
@@ -50,36 +61,24 @@ void main(void) {
   screenUV.y *= min(uTexAspectY, 1.f);
   screenUV = screenUV + vec2(0.5f);
 
-  float f = specular(vEyeVector, vNormal);
+  float IorR = 1.f / 1.15f;
+  float IorG = 1.f / 1.18f;
+  float IorB = 1.f / 1.22f;
 
-  float refractPower = 0.02f;
+  vec3 refractVecR = refract(E, N, IorR) *0.3;
+  vec3 refractVecG = refract(E, N, IorG)*0.3;
+  vec3 refractVecB = refract(E, N, IorB)*0.3;
 
-  refractPower = (1.0f - refractPower) * (1.0f - 0.6f) + 0.6f;
-
-  f = smoothstep(0.1f, refractPower, f);
-
-  // vec3 normalVecR = vNormal * f * (0.1f + 0.1f * 1.0f);
-  // vec3 normalVecG = vNormal * f * (0.1f + 0.1f * 1.5f);
-  // vec3 normalVecB = vNormal * f * (0.1f + 0.1f * 2.0f);]
-
-  // vec3 normalVecR = vEyeVector * dot(vEyeVector, vNormal) * f * (0.1f + 0.1f * 1.0f);
-  // vec3 normalVecG = vEyeVector * dot(vEyeVector, vNormal) * f * (0.1f + 0.1f * 1.5f);
-  // vec3 normalVecB = vEyeVector * dot(vEyeVector, vNormal) * f * (0.1f + 0.1f * 2.0f);
-
-  vec3 normalVecR = vEyeVector * dot(vEyeVector, vNormal) * f * (0.1f + 0.1f * 1.0f);
-  vec3 normalVecG = vEyeVector * dot(vEyeVector, vNormal) * f * (0.1f + 0.1f * 1.f);
-  vec3 normalVecB = vEyeVector * dot(vEyeVector, vNormal) * f * (0.1f + 0.1f * 1.f);
+  float r = texture(uSamplerVideo, screenUV + refractVecR.xy).r;
+  float g = texture(uSamplerVideo, screenUV + refractVecG.xy).g;
+  float b = texture(uSamplerVideo, screenUV + refractVecB.xy).b;
 
   if(uIsBG) {
     fragColor = texture(uSamplerVideo, uv);
   } else {
-    float R = texture(uSamplerVideo, screenUV - normalVecR.xy).r;
-    float G = texture(uSamplerVideo, screenUV - normalVecG.xy).g;
-    float B = texture(uSamplerVideo, screenUV - normalVecB.xy).b;
 
-    vec3 color = vec3(R, G, B);
+    vec3 color = vec3(r, g, b);
 
-
-    fragColor = finalColor * vec4(color, 1.0f);
+    fragColor = vec4(color, 1.0f) + finalColor * vec4(color, 1.0f);
   }
 }
