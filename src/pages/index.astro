@@ -13,6 +13,7 @@ import Loading from '@/components/Loading.astro'
   body {
     min-height: 100svh;
     height: 100svh;
+    overflow: hidden;
   }
 </style>
 
@@ -26,7 +27,8 @@ import Loading from '@/components/Loading.astro'
       document.querySelector('#log'),
       document.querySelector('#progress'),
       document.querySelector('#counter'),
-      () => {init()},
+      () => {}
     )
+    init()
   })
 </script>
