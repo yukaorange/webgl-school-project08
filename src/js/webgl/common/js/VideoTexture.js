@@ -16,6 +16,7 @@ export class VideoTexture {
     video.muted = true
     video.loop = true
     video.playsInline = true
+    video.setAttribute('muted', 'muted')
 
     const playVideo = () => {
       video
@@ -31,6 +32,11 @@ export class VideoTexture {
     }
 
     window.addEventListener('touchstart', playVideo)
+
+    video.addEventListener('canplay', function () {
+      video.play()
+    })
+
 
     video.addEventListener(
       'playing',
@@ -49,6 +55,8 @@ export class VideoTexture {
       },
       true,
     )
+
+
 
     video.src = url
     video.play()

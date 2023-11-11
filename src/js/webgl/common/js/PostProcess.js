@@ -125,21 +125,26 @@ export class PostProcess {
   }
 
   validateSize() {
+
     const gl = this.gl
 
     const { width, height } = this.canvas
 
     // 1. Resize Color Texture
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
+
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
 
     // 2. Resize Render Buffer
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer)
+
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height)
 
     // 3. Clean up
     gl.bindTexture(gl.TEXTURE_2D, null)
+    
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+
   }
 
   bind() {

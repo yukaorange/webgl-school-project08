@@ -123,9 +123,11 @@ async function loadTextures() {
 }
 
 function render() {
+
   videoTexture.updateTexture()
 
   post.validateSize()
+
   gl.bindFramebuffer(gl.FRAMEBUFFER, post.framebuffer)
 
   draw()
@@ -135,16 +137,20 @@ function render() {
   post.bind()
 
   post.draw()
+
 }
 
 function draw() {
   elapsedTime = clock.getElapsedTime() / 1000
+
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
   transforms.updatePerspective()
 
   try {
+    
     program.useProgram()
 
     scene.traverse((object) => {
