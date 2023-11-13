@@ -8,6 +8,8 @@ inspired https://github.com/tanababy/webgl-studies-vol2
 
  By the way postprocessing restricted within the cursor area.
 
+ deploy:https://webgl-school-project08.vercel.app/
+
 
 ## starting with
 ```
